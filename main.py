@@ -105,10 +105,19 @@ async def main():
                         else: j += 0
                     except BaseException as _:
                         foes[i].pop(j)
-                        print(f"lost to {_}")
-                        raise _
+                        mat.fill("black")
+                        for k in range(32):
+                            mat.set_at((k,k),"white")
+                            mat.set_at((31-k,k),"white")
+                            await asyncio.sleep(0)
+                        sc.blit(pg.transform.scale(mat,(SIZE,SIZE)),(0,0))
+                        pg.display.flip()
+                        await asyncio.sleep(0)
+                        clk.tick(1)
+                        running = False
+                        await asyncio.sleep(0)
+                        break
                         pass
-                print(f"j {j}")
                 scheduled[i][0] -= 1
                 foes[i].append(Bullet(scheduled[i][1],2*i,(0,2),True))
                 i += 1
