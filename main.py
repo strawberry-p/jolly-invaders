@@ -5,7 +5,7 @@ FPS = 60
 SCALE = 30
 SIZE = SCALE*32
 OFF = 30
-ENEMYTIME = 20
+ENEMYTIME = 30
 px,py = (15,31)
 colors2 = ["red", "yellow", "blue","green","purple","orange"]
 bullet_colors2 = [(180,0,0),(90+OFF,90+OFF,0),(0,0,180),(0,180,0),(90,0,90),(120+OFF,60+OFF,0)]
@@ -45,7 +45,6 @@ class Bullet:
                         if not enemy.dying:
                             print(f"enemy at y {enemy.y} x {enemy.x} dying. killed by {self.is_enemy} at {self.y} {self.x}")
                             enemy.dying = True
-                        else: foes[self.x//2].pop(0)
                     return True
             else: print(f"free column {self.x//2}")
 
@@ -83,8 +82,10 @@ async def main():
         inc += 1
         shoot_inc += 1
         bmove_inc += 1
-        if bmove_inc >= FPS//5:
+        if bmove_inc >= FPS//6:
             bmove_inc = 0
+            for col in foes:
+                if len(col) and col[0].dying: col.pop(0)
             i = 0
             while i < len(bullets):
                 b = bullets[i]
