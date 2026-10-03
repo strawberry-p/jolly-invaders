@@ -13,8 +13,8 @@ colors = ["red","yellow","blue"]
 bullet_colors = [(180,0,0),(90+OFF,90+OFF,0),(0,0,180)]
 #scheduled: list[list[int,int]] = [[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,0],[2,1],[2,2],[2,3],[2,4],[2,5],[2,0],[2,1],[2,2],[2,3]]
 scheduled: list[list[int,int]] = [[2,0],[2,1],[2,2],[2,0],[2,1],[2,2],[2,0],[2,1],[2,2],[2,0],[2,1],[2,2],[2,0],[2,1],[2,2],[2,0]]
-bullets: list[Bullet] = []
-foes: list[list[Bullet]] = [] #believe it or not they're bullets too
+bullets: list = []
+foes: list[list] = [] #believe it or not they're bullets too
 clr = 1
 inc = 0
 shoot_inc = 0
@@ -36,11 +36,11 @@ class Bullet:
         if not (0 <= self.x <= 31): return True
         elif self.dying: return True
         elif self.y < 0: return True
-        elif self.y >= 31 and not self.dying: raise Exception("Loss ",self.clr)
+        elif self.y >= 29 and self.is_enemy and not self.dying: raise Exception("Loss ",self.clr)
         elif not self.is_enemy:
             if len(foes[self.x//2]):
                 enemy = foes[self.x//2][0]
-                if enemy.x//2 == self.x//2:
+                if enemy.x//2 == self.x//2 and enemy.y//2 == self.y//2:
                     if enemy.clr == self.clr:
                         if not enemy.dying:
                             print(f"enemy at y {enemy.y} x {enemy.x} dying. killed by {self.is_enemy} at {self.y} {self.x}")
@@ -54,6 +54,7 @@ class Bullet:
         if self.dying: color = "gray"
         elif self.is_enemy: color = colors[self.clr]
         else: color = bullet_colors[self.clr]
+        #if not self.is_enemy: print(f"displaying {color} at {(self.x,self.y)}")
         mat.set_at((self.x,self.y),color)
         if self.is_enemy:
             mat.set_at((self.x+1,self.y),color)
@@ -125,6 +126,7 @@ async def main():
         if shoot_inc >= (2*FPS)//3:
             shoot_inc = 0
             bullets.append(Bullet(clr,px))
+            print([x.__dict__ for x in bullets])
         if inc >= FPS//2:
             print(clr)
             inc = 0
@@ -143,7 +145,6 @@ async def main():
         mat.fill("black")
         for b in bullets:
             b.dsp(mat)
-            print(f"bullet x {b.x} clr {b.clr}")
         for col in foes:
                 for i in col:
                     i.dsp(mat)
