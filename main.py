@@ -20,6 +20,8 @@ inc = 0
 shoot_inc = 0
 bmove_inc = 0
 enemy_inc = 0
+p_dir = 0
+p_flip = False
 class Bullet:
     def __init__(self, color: int, x:int, dir: tuple[int,int] = (0,-1),enemy:bool = False):
         self.clr = color
@@ -67,7 +69,7 @@ async def player_spot(mat:pg.Surface):
     mat.set_at((px,py-1),"white")
     await asyncio.sleep(0)
 async def main():
-    global px,py,inc,clr,shoot_inc,bmove_inc,enemy_inc,ENEMYTIME
+    global px,py,p_dir,p_flip,inc,clr,shoot_inc,bmove_inc,enemy_inc,ENEMYTIME
     pg.init()
     sc = pg.display.set_mode((SIZE,SIZE))
     clk = pg.time.Clock()
@@ -84,6 +86,12 @@ async def main():
         bmove_inc += 1
         if bmove_inc >= FPS//6:
             bmove_inc = 0
+            if p_flip:
+                px += p_dir
+                if px < 0: px = 31
+                if px > 31: px = 0
+                p_flip = False
+            else: p_flip = True
             for col in foes:
                 if len(col) and col[0].dying: col.pop(0)
             i = 0
@@ -138,11 +146,13 @@ async def main():
             elif event.type == pg.KEYDOWN:
                 k = event.key
                 if k == pg.K_a or k == pg.K_LEFT:
-                    px -= 1
-                    if px < 0: px = 31
+                    p_dir = -1
                 elif k == pg.K_d or k == pg.K_RIGHT:
-                    px += 1
-                    if px > 31: px = 0
+                    p_dir = 1
+            elif event.type == pg.KEYUP:
+                k = event.key
+                if (k == pg.K_a or k == pg.K_LEFT) and p_dir == -1: p_dir = 0
+                elif (k == pg.K_d or k == pg.K_RIGHT) and p_dir == 1: p_dir = 0
         mat.fill("black")
         for b in bullets:
             b.dsp(mat)
